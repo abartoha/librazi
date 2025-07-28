@@ -30,20 +30,42 @@ class BookController(QObject):
         self.view.table.horizontalHeader().sectionClicked.connect(self.sort_table)
         self.view.table.doubleClicked.connect(self.show_edit_book_dialog)
 
+    def disconnect_action_buttons(self, row):
+        """Disconnect signals for action buttons in the specified row"""
+        widget = self.view.table.cellWidget(row, 9)
+        if widget:
+            edit_btn = widget.layout().itemAt(0).widget()
+            delete_btn = widget.layout().itemAt(1).widget()
+            add_copy_btn = widget.layout().itemAt(2).widget()
+            try:
+                edit_btn.clicked.disconnect()
+                delete_btn.clicked.disconnect()
+                add_copy_btn.clicked.disconnect()
+            except TypeError:
+                # Signals may not be connected yet, which is fine
+                pass
 
     def load_books(self, search_query=None, genre=None, year_min=None, year_max=None):
         try:
+            # Disconnect all existing action button signals
+            for row in range(self.view.table.rowCount()):
+                self.disconnect_action_buttons(row)
+
             books = self.model.get_books(search_query, genre, year_min, year_max, self.current_sort_column, self.current_sort_order)
             self.view.show_books(books)
+            
             for row in range(self.view.table.rowCount()):
+                book_id = self.view.table.item(row, 0).text()
                 widget = self.view.table.cellWidget(row, 9)
                 if widget:
                     edit_btn = widget.layout().itemAt(0).widget()
                     delete_btn = widget.layout().itemAt(1).widget()
                     add_copy_btn = widget.layout().itemAt(2).widget()
-                    edit_btn.clicked.connect(lambda _, r=row: self.edit_book_row(r))
-                    delete_btn.clicked.connect(lambda _, r=row: self.delete_book_row(r))
-                    add_copy_btn.clicked.connect(lambda _, r=row: self.copy_controller.show_book_copies_dialog(r))
+                    
+                    # Connect buttons using book_id to ensure correct mapping
+                    edit_btn.clicked.connect(lambda _, bid=book_id, r=row: self.edit_book_row(bid, r))
+                    delete_btn.clicked.connect(lambda _, bid=book_id, r=row: self.delete_book_row(bid, r))
+                    add_copy_btn.clicked.connect(lambda _, bid=book_id, r=row: self.copy_controller.show_book_copies_dialog(bid))
             
         except Exception as e:
             logging.error(f"Error loading books: {str(e)}")
@@ -93,10 +115,10 @@ class BookController(QObject):
         if not selected_rows:
             self.view.show_error("Please select a book to edit")
             return
-        self.edit_book_row(selected_rows[0].row())
+        book_id = self.view.table.item(selected_rows[0].row(), 0).text()
+        self.edit_book_row(book_id, selected_rows[0].row())
 
-    def edit_book_row(self, row):
-        book_id = self.view.table.item(row, 0).text()
+    def edit_book_row(self, book_id, row):
         book_data = {
             'title': self.view.table.item(row, 1).text() or '',
             'author': self.view.table.item(row, 2).text() or '',
@@ -153,9 +175,10 @@ class BookController(QObject):
         if not selected_rows:
             self.view.show_error("Please select a book to delete")
             return
-        self.delete_book_row(selected_rows[0].row())
+        book_id = self.view.table.item(selected_rows[0].row(), 0).text()
+        self.delete_book_row(book_id, selected_rows[0].row())
 
-    def delete_book_row(self, row):
+    def delete_book_row(self, book_id, row):
         reply = QMessageBox.question(
             self.view, 
             'Confirm Delete', 
@@ -166,8 +189,7 @@ class BookController(QObject):
         
         if reply == QMessageBox.Yes:
             try:
-                book_id = int(self.view.table.item(row, 0).text())
-                self.model.delete_book(book_id)
+                self.model.delete_book(int(book_id))
                 self.load_books()
             except ValueError as e:
                 logging.error(f"Error deleting book: {str(e)}")

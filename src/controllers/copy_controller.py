@@ -1,5 +1,6 @@
 from PyQt5.QtCore import QObject, QDate, Qt
 from PyQt5.QtWidgets import QMessageBox, QTableWidgetItem
+from sqlalchemy import text
 
 class CopyController(QObject):
     def __init__(self, copy_model, view, book_controller):
@@ -7,23 +8,38 @@ class CopyController(QObject):
         self.copy_model = copy_model
         self.view = view
         self.book_controller = book_controller
+        self.book_model = book_controller.model  # Access BookModel for title lookup
 
-    def show_book_copies_dialog(self, row):
-        book_id = int(self.view.table.item(row, 0).text())
-        book_title = self.view.table.item(row, 1).text()
+    def show_book_copies_dialog(self, book_id, row=None):
+        # Retrieve book title from database to ensure accuracy
+        try:
+            session = self.book_model.session_pool.get_session()
+            query = text("SELECT title FROM books WHERE book_id = :book_id AND is_active = true")
+            result = session.execute(query, {'book_id': book_id}).scalar()
+            book_title = result if result else "Unknown Title"
+        except Exception as e:
+            self.view.show_error(f"Error retrieving book title: {str(e)}")
+            book_title = "Unknown Title"
+        finally:
+            self.book_model.session_pool.close_session(session)
+
         dialog, fields = self.view.show_book_copies_dialog(book_id, book_title)
         
+        def disconnect_dialog_buttons():
+            """Disconnect existing signals for dialog buttons"""
+            try:
+                fields['add_button'].clicked.disconnect()
+                fields['edit_button'].clicked.disconnect()
+                fields['delete_button'].clicked.disconnect()
+                fields['close_button'].clicked.disconnect()
+            except TypeError:
+                # Signals may not be connected yet, which is fine
+                pass
+
         def load_copies():
             try:
                 copies = self.copy_model.get_book_copies(book_id)
-                self.view.copies_table.setRowCount(len(copies))
-                for row_idx, copy in enumerate(copies):
-                    # copy_id, book_id, copy_number, acquisition_date, current_condition, status, is_active
-                    values = [copy[0], copy[2], copy[3], copy[4], copy[5]]
-                    for col_idx, value in enumerate(values):
-                        item = QTableWidgetItem(str(value))
-                        item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-                        self.view.copies_table.setItem(row_idx, col_idx, item)
+                self.view.show_copies(copies)  # Use show_copies from view
                 self.view.copies_table.resizeColumnsToContents()
             except Exception as e:
                 self.view.show_error(f"Error loading book copies: {str(e)}")
@@ -129,9 +145,14 @@ class CopyController(QObject):
                 except ValueError as e:
                     self.view.show_error(str(e))
         
-        load_copies()
+        # Disconnect previous signals to prevent duplicate connections
+        disconnect_dialog_buttons()
+        
+        # Connect dialog buttons
         fields['add_button'].clicked.connect(add_copy)
         fields['edit_button'].clicked.connect(edit_copy)
         fields['delete_button'].clicked.connect(delete_copy)
         fields['close_button'].clicked.connect(dialog.reject)
+        
+        load_copies()
         dialog.exec_()

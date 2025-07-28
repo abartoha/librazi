@@ -242,14 +242,15 @@ class BookManagementView(QWidget):
             action_layout.setContentsMargins(4, 4, 4, 4)
             action_layout.setSpacing(4)
             
+            book_id = str(row[0])
             edit_btn = StyledToolButton("edit", "Edit Book", "edit")
-            edit_btn.setProperty('row', row_idx)
+            edit_btn.setProperty('book_id', book_id)
             
             delete_btn = StyledToolButton("delete", "Delete Book", "delete")
-            delete_btn.setProperty('row', row_idx)
+            delete_btn.setProperty('book_id', book_id)
             
             add_copy_btn = StyledToolButton("add", "Manage Copies", "add")
-            add_copy_btn.setProperty('row', row_idx)
+            add_copy_btn.setProperty('book_id', book_id)
             
             action_layout.addWidget(edit_btn)
             action_layout.addWidget(delete_btn)
@@ -531,19 +532,19 @@ class BookManagementView(QWidget):
             self.copies_table.setItem(row_idx, 0, id_item)
             
             # Copy Number
-            number_item = QTableWidgetItem(str(copy[1]))
+            number_item = QTableWidgetItem(str(copy[2]))
             number_item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             self.copies_table.setItem(row_idx, 1, number_item)
             
             # Acquisition Date
-            date_item = QTableWidgetItem(str(copy[2]))
+            date_item = QTableWidgetItem(str(copy[3]))
             date_item.setTextAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.copies_table.setItem(row_idx, 2, date_item)
             
             # Condition with color coding
-            condition_item = QTableWidgetItem(str(copy[3]))
+            condition_item = QTableWidgetItem(str(copy[4]))
             condition_item.setTextAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-            condition = str(copy[3]).lower()
+            condition = str(copy[4]).lower()
             if condition == 'excellent':
                 condition_item.setBackground(QColor("#E8F5E8"))
                 condition_item.setForeground(QColor("#2E7D32"))
@@ -559,9 +560,9 @@ class BookManagementView(QWidget):
             self.copies_table.setItem(row_idx, 3, condition_item)
             
             # Status with color coding
-            status_item = QTableWidgetItem(str(copy[4]))
+            status_item = QTableWidgetItem(str(copy[5]))
             status_item.setTextAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-            status = str(copy[4]).lower()
+            status = str(copy[5]).lower()
             if status == 'available':
                 status_item.setBackground(QColor("#E8F5E8"))
                 status_item.setForeground(QColor("#2E7D32"))
