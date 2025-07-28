@@ -14,7 +14,10 @@ class StyledButton(QPushButton):
     def __init__(self, text, icon_name=None, primary=False):
         super().__init__(text)
         if icon_name:
-            self.setIcon(icon_manager.get_icon(icon_name))
+            try:
+                self.setIcon(icon_manager.get_icon(icon_name))
+            except:
+                pass  # No icon if manager fails
         self.primary = primary
         self.setProperty("primary", str(primary).lower())
 
@@ -38,6 +41,7 @@ class SearchFrame(QFrame):
 class BookManagementView(QWidget):
     def __init__(self):
         super().__init__()
+        self.copies_table = None
         self.load_styles()
         self.init_ui()
 
@@ -147,7 +151,7 @@ class BookManagementView(QWidget):
         
         self.delete_button = StyledButton("🗑️ Delete Book", "delete")
         self.delete_button.setShortcut('Ctrl+D')
-        self.edit_button.setMinimumHeight(45)
+        self.delete_button.setMinimumHeight(45)
         
         self.import_button = StyledButton("📥 Import Books", "import")
         self.import_button.setMinimumHeight(45)
@@ -195,6 +199,7 @@ class BookManagementView(QWidget):
 
     def show_books(self, books):
         """Enhanced book display with better formatting and styling"""
+        self.table.clearContents()
         self.table.setRowCount(len(books))
         current_year = datetime.now().year
         
@@ -218,7 +223,7 @@ class BookManagementView(QWidget):
                 self.table.setItem(row_idx, col_idx, item)
             
             # Copy count with enhanced styling
-            copy_count = str(row[9])
+            copy_count = str(row[9]) if len(row) > 9 else "0"
             copy_item = QTableWidgetItem(copy_count)
             copy_item.setTextAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             

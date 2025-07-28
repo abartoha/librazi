@@ -24,7 +24,7 @@ class BookModel:
             if search_query:
                 query += " AND (title ILIKE :search OR author ILIKE :search OR isbn ILIKE :search OR genre ILIKE :search)"
                 params['search'] = f'%{search_query}%'
-            if genre:
+            if genre and genre != 'All':  # Add the != 'All' check
                 query += " AND genre = :genre"
                 params['genre'] = genre
             if year_min:
@@ -126,8 +126,8 @@ class BookModel:
             return True
         isbn = isbn.replace('-', '').replace(' ', '')
         if len(isbn) == 10:
-            total = sum((i + 1) * (10 if c == 'X' else int(c)) for i, c in enumerate(isbn[:9]))
-            check_digit = (total % 11) == (10 if isbn[-1] == 'X' else int(isbn[-1]))
+            total = sum((10 - i) * (10 if c == 'X' else int(c)) for i, c in enumerate(isbn[:9]))
+            check_digit = (11 - (total % 11)) % 11 == (10 if isbn[-1] == 'X' else int(isbn[-1]))
             return check_digit
         elif len(isbn) == 13:
             total = sum((3 if i % 2 else 1) * int(c) for i, c in enumerate(isbn[:12]))

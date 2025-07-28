@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal, Qt
 from PyQt5.QtWidgets import QMessageBox, QTableWidgetItem, QFileDialog, QToolButton
 import csv
 import logging
@@ -53,6 +53,8 @@ class BookController(QObject):
 
             books = self.model.get_books(search_query, genre, year_min, year_max, self.current_sort_column, self.current_sort_order)
             self.view.show_books(books)
+            # NOW connect the newly created buttons
+            self.connect_action_buttons()
             
             for row in range(self.view.table.rowCount()):
                 book_id = self.view.table.item(row, 0).text()
@@ -194,6 +196,20 @@ class BookController(QObject):
             except ValueError as e:
                 logging.error(f"Error deleting book: {str(e)}")
                 self.view.show_error(str(e))
+
+    def connect_action_buttons(self):
+        for row in range(self.view.table.rowCount()):
+            book_id = self.view.table.item(row, 0).text()
+            widget = self.view.table.cellWidget(row, 9)
+            if widget:
+                edit_btn = widget.layout().itemAt(0).widget()
+                delete_btn = widget.layout().itemAt(1).widget()
+                add_copy_btn = widget.layout().itemAt(2).widget()
+                
+                # Use single-shot connections (auto-disconnect after first use)
+                edit_btn.clicked.connect(lambda checked, bid=book_id: self.edit_book_by_id(bid), Qt.UniqueConnection)
+                delete_btn.clicked.connect(lambda checked, bid=book_id: self.delete_book_by_id(bid), Qt.UniqueConnection)
+                add_copy_btn.clicked.connect(lambda checked, bid=book_id: self.copy_controller.show_book_copies_dialog(bid), Qt.UniqueConnection)
 
     def search_books(self):
         search_query = self.view.search_input.text().strip()
