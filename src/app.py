@@ -6,6 +6,7 @@ from views.book_management_view import BookManagementView
 from controllers.book_controller import BookController
 from controllers.copy_controller import CopyController
 from views.main_window import MainWindow
+from icon_manager import IconManager
 
 def main():
     import sys

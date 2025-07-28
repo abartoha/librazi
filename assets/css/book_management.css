@@ -1,0 +1,277 @@
+/* Global Widget Styling */
+QWidget {
+    background-color: #FFFFFF;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* StyledButton (Primary and Non-Primary) */
+QPushButton[primary="true"] {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 13px;
+}
+QPushButton[primary="true"]:hover {
+    background-color: #1976D2;
+}
+QPushButton[primary="true"]:pressed {
+    background-color: #0D47A1;
+}
+QPushButton[primary="true"]:disabled {
+    background-color: #CCCCCC;
+    color: #666666;
+}
+
+QPushButton[primary="false"] {
+    background-color: #F5F5F5;
+    color: #333333;
+    border: 1px solid #DDDDDD;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+QPushButton[primary="false"]:hover {
+    background-color: #EEEEEE;
+    border-color: #BBBBBB;
+}
+QPushButton[primary="false"]:pressed {
+    background-color: #E0E0E0;
+}
+QPushButton[primary="false"]:disabled {
+    background-color: #F9F9F9;
+    color: #AAAAAA;
+    border-color: #EEEEEE;
+}
+
+/* StyledToolButton (edit, delete, add, default) */
+QToolButton {
+    border: none;
+    padding: 6px;
+    border-radius: 4px;
+    min-width: 24px;
+    min-height: 24px;
+}
+QToolButton[button_type="edit"] {
+    background-color: #E3F2FD;
+    color: #1976D2;
+}
+QToolButton[button_type="edit"]:hover {
+    background-color: #BBDEFB;
+}
+QToolButton[button_type="edit"]:pressed {
+    background-color: #90CAF9;
+}
+QToolButton[button_type="delete"] {
+    background-color: #FFEBEE;
+    color: #D32F2F;
+}
+QToolButton[button_type="delete"]:hover {
+    background-color: #FFCDD2;
+}
+QToolButton[button_type="delete"]:pressed {
+    background-color: #EF9A9A;
+}
+QToolButton[button_type="add"] {
+    background-color: #E8F5E8;
+    color: #388E3C;
+}
+QToolButton[button_type="add"]:hover {
+    background-color: #C8E6C9;
+}
+QToolButton[button_type="add"]:pressed {
+    background-color: #A5D6A7;
+}
+QToolButton[button_type="default"] {
+    background-color: #F5F5F5;
+    color: #555555;
+}
+QToolButton[button_type="default"]:hover {
+    background-color: #EEEEEE;
+}
+QToolButton[button_type="default"]:pressed {
+    background-color: #E0E0E0;
+}
+
+/* SearchFrame */
+QFrame#searchFrame {
+    background-color: #FAFAFA;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    padding: 8px;
+}
+QFrame#searchFrame QLineEdit {
+    border: 2px solid #E0E0E0;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 13px;
+    background-color: white;
+}
+QFrame#searchFrame QLineEdit:focus {
+    border-color: #2196F3;
+}
+QFrame#searchFrame QComboBox, QFrame#searchFrame QSpinBox {
+    border: 2px solid #E0E0E0;
+    border-radius: 6px;
+    padding: 6px;
+    background-color: white;
+    min-width: 80px;
+}
+QFrame#searchFrame QComboBox:focus, QFrame#searchFrame QSpinBox:focus {
+    border-color: #2196F3;
+}
+QFrame#searchFrame QLabel {
+    font-weight: bold;
+    color: #555555;
+    font-size: 12px;
+}
+
+/* BookManagementView Table */
+QTableWidget {
+    background-color: white;
+    alternate-background-color: #F8F9FA;
+    gridline-color: #E0E0E0;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    selection-background-color: #E3F2FD;
+}
+QTableWidget::item {
+    padding: 8px;
+    border-bottom: 1px solid #F0F0F0;
+}
+QTableWidget::item:selected {
+    background-color: #E3F2FD;
+    color: #1976D2;
+}
+QHeaderView::section {
+    background-color: #F5F5F5;
+    padding: 10px;
+    border: none;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 2px solid #DDDDDD;
+    font-weight: bold;
+    color: #333333;
+    font-size: 12px;
+}
+QHeaderView::section:hover {
+    background-color: #EEEEEE;
+}
+
+/* Title Label */
+QLabel#titleLabel {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2C3E50;
+    margin-bottom: 10px;
+}
+
+/* Button Frame */
+QFrame#buttonFrame {
+    background-color: #F8F9FA;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+/* Error Dialog */
+QMessageBox {
+    background-color: white;
+    font-size: 13px;
+}
+QMessageBox QPushButton {
+    background-color: #F44336;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    min-width: 80px;
+}
+QMessageBox QPushButton:hover {
+    background-color: #D32F2F;
+}
+
+/* Book Dialog */
+QDialog#bookDialog {
+    background-color: white;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+QDialog#bookDialog QLineEdit, QDialog#bookDialog QSpinBox, QDialog#bookDialog QComboBox {
+    border: 2px solid #E0E0E0;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 13px;
+    min-height: 20px;
+}
+QDialog#bookDialog QLineEdit:focus, QDialog#bookDialog QSpinBox:focus, QDialog#bookDialog QComboBox:focus {
+    border-color: #2196F3;
+}
+QDialog#bookDialog QLabel {
+    font-weight: bold;
+    color: #555555;
+    margin-bottom: 4px;
+}
+
+/* Copies Dialog */
+QDialog#copiesDialog {
+    background-color: white;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+QDialog#copiesDialog QTableWidget {
+    background-color: white;
+    alternate-background-color: #F8F9FA;
+    gridline-color: #E0E0E0;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    selection-background-color: #E3F2FD;
+}
+QDialog#copiesDialog QTableWidget::item {
+    padding: 8px;
+    border-bottom: 1px solid #F0F0F0;
+}
+QDialog#copiesDialog QHeaderView::section {
+    background-color: #F5F5F5;
+    padding: 10px;
+    border: none;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 2px solid #DDDDDD;
+    font-weight: bold;
+    color: #333333;
+}
+QDialog#copiesDialog QLabel {
+    font-size: 16px;
+    font-weight: bold;
+    color: #2C3E50;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #F8F9FA;
+    border-radius: 6px;
+}
+
+/* Copy Dialog */
+QDialog#copyDialog {
+    background-color: white;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+QDialog#copyDialog QLineEdit, QDialog#copyDialog QSpinBox, QDialog#copyDialog QComboBox, QDialog#copyDialog QDateEdit {
+    border: 2px solid #E0E0E0;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 13px;
+    min-height: 20px;
+}
+QDialog#copyDialog QLineEdit:focus, QDialog#copyDialog QSpinBox:focus, QDialog#copyDialog QComboBox:focus, QDialog#copyDialog QDateEdit:focus {
+    border-color: #2196F3;
+}
+QDialog#copyDialog QLabel {
+    font-weight: bold;
+    color: #555555;
+    margin-bottom: 4px;
+}
+QDialog#copyDialog QComboBox::drop-down {
+    border: none;
+    background-color: #F5F5F5;
+}
+QDialog#copyDialog QComboBox::item {
+    padding: 8px;
+}
