@@ -47,7 +47,7 @@ class BookManagementView(QWidget):
 
     def load_styles(self):
         """Load styles from external CSS file"""
-        css_file = QFile(os.path.join(os.path.dirname(__file__), "styles.css"))
+        css_file = QFile("assets/css/book_management.css")
         if css_file.open(QFile.ReadOnly | QFile.Text):
             stream = QTextStream(css_file)
             self.setStyleSheet(stream.readAll())
@@ -109,7 +109,6 @@ class BookManagementView(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table.setAlternatingRowColors(True)
-        self.table.setSortingEnabled(True)
         self.table.verticalHeader().setVisible(False)
         self.table.setMinimumHeight(400)
         
@@ -251,15 +250,15 @@ class BookManagementView(QWidget):
             edit_btn = StyledToolButton("edit", "Edit Book", "edit")
             edit_btn.setProperty('book_id', book_id)
             
-            delete_btn = StyledToolButton("delete", "Delete Book", "delete")
-            delete_btn.setProperty('book_id', book_id)
-            
             add_copy_btn = StyledToolButton("add", "Manage Copies", "add")
             add_copy_btn.setProperty('book_id', book_id)
             
+            delete_btn = StyledToolButton("delete", "Delete Book", "delete")
+            delete_btn.setProperty('book_id', book_id)
+            
             action_layout.addWidget(edit_btn)
-            action_layout.addWidget(delete_btn)
             action_layout.addWidget(add_copy_btn)
+            action_layout.addWidget(delete_btn)
             action_layout.addStretch()
             
             action_widget.setLayout(action_layout)

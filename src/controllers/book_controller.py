@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QObject, pyqtSignal, Qt
-from PyQt5.QtWidgets import QMessageBox, QTableWidgetItem, QFileDialog, QToolButton
+from PyQt5.QtWidgets import QMessageBox, QTableWidgetItem, QFileDialog
 import csv
 import logging
 from datetime import datetime
@@ -35,15 +35,13 @@ class BookController(QObject):
         widget = self.view.table.cellWidget(row, 9)
         if widget:
             edit_btn = widget.layout().itemAt(0).widget()
-            delete_btn = widget.layout().itemAt(1).widget()
-            add_copy_btn = widget.layout().itemAt(2).widget()
-            try:
-                edit_btn.clicked.disconnect()
-                delete_btn.clicked.disconnect()
-                add_copy_btn.clicked.disconnect()
-            except TypeError:
-                # Signals may not be connected yet, which is fine
-                pass
+            add_copy_btn = widget.layout().itemAt(1).widget()
+            delete_btn = widget.layout().itemAt(2).widget()
+            for btn in [edit_btn, add_copy_btn, delete_btn]:
+                try:
+                    btn.clicked.disconnect()
+                except TypeError:
+                    pass  # Ignore if signal is not connected
 
     def load_books(self, search_query=None, genre=None, year_min=None, year_max=None):
         try:
@@ -53,21 +51,20 @@ class BookController(QObject):
 
             books = self.model.get_books(search_query, genre, year_min, year_max, self.current_sort_column, self.current_sort_order)
             self.view.show_books(books)
-            # NOW connect the newly created buttons
-            self.connect_action_buttons()
             
+            # Connect action buttons with lambda functions
             for row in range(self.view.table.rowCount()):
                 book_id = self.view.table.item(row, 0).text()
                 widget = self.view.table.cellWidget(row, 9)
                 if widget:
-                    edit_btn = widget.layout().itemAt(0).widget()
-                    delete_btn = widget.layout().itemAt(1).widget()
-                    add_copy_btn = widget.layout().itemAt(2).widget()
+                    edit_btn = widget.layout().itemAt(0).widget()  # Edit button
+                    add_copy_btn = widget.layout().itemAt(1).widget()  # Add copy button
+                    delete_btn = widget.layout().itemAt(2).widget()  # Delete button
                     
-                    # Connect buttons using book_id to ensure correct mapping
-                    edit_btn.clicked.connect(lambda _, bid=book_id, r=row: self.edit_book_row(bid, r))
-                    delete_btn.clicked.connect(lambda _, bid=book_id, r=row: self.delete_book_row(bid, r))
-                    add_copy_btn.clicked.connect(lambda _, bid=book_id, r=row: self.copy_controller.show_book_copies_dialog(bid))
+                    # Connect buttons using lambda with book_id and row
+                    edit_btn.clicked.connect(lambda checked, bid=book_id, r=row: self.edit_book_row(bid, r))
+                    delete_btn.clicked.connect(lambda checked, bid=book_id, r=row: self.delete_book_row(bid, r))
+                    add_copy_btn.clicked.connect(lambda checked, bid=book_id, r=row: self.copy_controller.show_book_copies_dialog(bid))
             
         except Exception as e:
             logging.error(f"Error loading books: {str(e)}")
@@ -197,20 +194,6 @@ class BookController(QObject):
                 logging.error(f"Error deleting book: {str(e)}")
                 self.view.show_error(str(e))
 
-    def connect_action_buttons(self):
-        for row in range(self.view.table.rowCount()):
-            book_id = self.view.table.item(row, 0).text()
-            widget = self.view.table.cellWidget(row, 9)
-            if widget:
-                edit_btn = widget.layout().itemAt(0).widget()
-                delete_btn = widget.layout().itemAt(1).widget()
-                add_copy_btn = widget.layout().itemAt(2).widget()
-                
-                # Use single-shot connections (auto-disconnect after first use)
-                edit_btn.clicked.connect(lambda checked, bid=book_id: self.edit_book_by_id(bid), Qt.UniqueConnection)
-                delete_btn.clicked.connect(lambda checked, bid=book_id: self.delete_book_by_id(bid), Qt.UniqueConnection)
-                add_copy_btn.clicked.connect(lambda checked, bid=book_id: self.copy_controller.show_book_copies_dialog(bid), Qt.UniqueConnection)
-
     def search_books(self):
         search_query = self.view.search_input.text().strip()
         genre = self.view.genre_filter.currentText()
@@ -254,11 +237,24 @@ class BookController(QObject):
     def sort_table(self, column):
         columns = ['book_id', 'title', 'author', 'isbn', 'publication_year', 'publisher', 'pages', 'genre']
         # Prevent sorting on Copies (8) or Actions (9) columns
-        if column >= len(columns):
+        if column < 0 or column >= len(columns):
             return
+        
         selected_column = columns[column]
         self.current_sort_order = 'DESC' if self.current_sort_column == selected_column and self.current_sort_order == 'ASC' else 'ASC'
         self.current_sort_column = selected_column
+        
+        # Update header labels to show sort direction
+        header_labels = ["ID", "Title", "Author", "ISBN", "Year", "Publisher", "Pages", "Genre", "Copies", "Actions"]
+        for i, label in enumerate(header_labels):
+            if i == column:
+                arrow = " ↑" if self.current_sort_order == 'ASC' else " ↓"
+                header_labels[i] = f"{label}{arrow}"
+            else:
+                header_labels[i] = label  # Reset other headers
+        self.view.table.setHorizontalHeaderLabels(header_labels)
+        
+        # Reload books with new sorting
         self.load_books(
             search_query=self.view.search_input.text().strip(),
             genre=None if self.view.genre_filter.currentText() == 'All' else self.view.genre_filter.currentText(),
