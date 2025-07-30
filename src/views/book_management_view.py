@@ -47,7 +47,7 @@ class BookManagementView(QWidget):
 
     def load_styles(self):
         """Load styles from external CSS file"""
-        css_file = QFile("assets/css/book_management.css")
+        css_file = QFile("assets/css/styles.css")
         if css_file.open(QFile.ReadOnly | QFile.Text):
             stream = QTextStream(css_file)
             self.setStyleSheet(stream.readAll())
